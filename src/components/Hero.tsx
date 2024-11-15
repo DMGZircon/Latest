@@ -67,11 +67,20 @@ export const Hero: React.FC<IHero> = ({ setIsLoading }) => {
     
         try {
             // Replace the URL with your Hostinger URL pointing to save_analysis.php
-            await axios.post('https://beige-ant-849030.hostingersite.com/save_analysis.php', result, {
+            const response = await axios.post('https://beige-ant-849030.hostingersite.com/save_analysis.php', result, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
             });
+            
+            // Log the response from the server
+        console.log('Server Response:', response.data);
+        
+        if ((response.data as any).status === 'success') {
+            console.log('Analysis result saved to the database successfully.');
+        } else {
+            console.error('Error saving analysis result:', (response.data as any).error);
+        }
             console.log('Analysis result saved to the database successfully.');
         } catch (error) {
             console.error('Error saving analysis result:', error);
@@ -161,6 +170,7 @@ export const Hero: React.FC<IHero> = ({ setIsLoading }) => {
         });
     };
 
+
     const indexOfLastComment = currentPage * commentsPerPage;
     const indexOfFirstComment = indexOfLastComment - commentsPerPage;
     const currentComments = analyzedComments.slice(indexOfFirstComment, indexOfLastComment);
@@ -196,7 +206,7 @@ export const Hero: React.FC<IHero> = ({ setIsLoading }) => {
                     {errorPostID && (
                         <Box sx={{ marginBottom: "1em" }}>
                             <FormControl fullWidth>
-                                <p className='error text-red-500 text-sm'>Your Post ID is invalid!</p>
+                                <p className='error text-red-500 text-sm'>It looks like you're trying to access a post ID that doesn't belong to the authorized page. Please ensure you're using a valid post ID associated with the authorized Facebook page. </p>
                             </FormControl>
                         </Box>
                     )}

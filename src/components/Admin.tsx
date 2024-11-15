@@ -176,7 +176,8 @@ const fetchAnalysisHistory = async () => {
     analysisHistory.forEach(result => {
       const date = new Date(result.date);
       const weekKey = `${date.getFullYear()}-W${getWeekNumber(date)}`;
-      weekScores[weekKey] = (weekScores[weekKey] || 0) + result.overallScore;
+      const score = Number(result.overallScore);
+      weekScores[weekKey] = (weekScores[weekKey] || 0) + score;
     });
     return {
       labels: Object.keys(weekScores),
@@ -306,7 +307,7 @@ const fetchAnalysisHistory = async () => {
             </TableHead>
             <TableBody>
               {analysisHistory.map((result) => (
-                <TableRow key={result.id ?? `${result.postId}-${Math.random()}`} sx={{ '&:hover': { backgroundColor: '#f5f5f5' } }}>
+                <TableRow key={result.id} sx={{ '&:hover': { backgroundColor: '#f5f5f5' } }}>
                   <TableCell>{result.postId}</TableCell>
                   <TableCell>{new Date(result.date).toLocaleString()}</TableCell>
                   <TableCell>{result.overallScore}</TableCell>
@@ -341,7 +342,7 @@ const fetchAnalysisHistory = async () => {
                 <>
                   {Array.isArray(topPosts) && topPosts.length > 0 ? (
                     topPosts.map((result) => (
-                      <TableRow key={result.id ?? `${result.postId}-${Math.random()}`}>
+                      <TableRow key={result.id}>
                         <TableCell>{result.postId}</TableCell>
                         <TableCell>{new Date(result.date).toLocaleString()}</TableCell>
                         <TableCell>{result.overallScore}</TableCell>

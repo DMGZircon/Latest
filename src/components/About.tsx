@@ -23,21 +23,15 @@ export const HowToUse = () => {
               Follow these steps to get the Post ID:
             </p>
             <ul className="text-lg">
-            <img
-            src="/get-date.jpg" // Replace with the appropriate image file path for instructions
-            className="w-[35rem] h-[35rem] object-contain rounded-3xl"
-            alt="Getting Post ID"
-            />
               <li>Go to the Facebook post that you want to analyze and click on the date.</li>
+              <img src="/get-date.jpg" // Replace with the image showing where the Post ID is in the Facebook URL
+              className="w-[35rem] h-[20rem] object-contain rounded-3xl mt-4"
+              alt="Post ID Example"/>
               <li>Press "Right-Click to View Page Source(or in Chroms, its Ctrl+U)</li>
               <li>Press "Ctrl+F" to search for "post_id"</li>
               <li>The Post ID is a long string of numbers (ex. "post_id=123456789..."). Copy this number.</li>
             </ul>
-            <img
-              src="/get-date.jpg" // Replace with the image showing where the Post ID is in the Facebook URL
-              className="w-[35rem] h-[20rem] object-contain rounded-3xl mt-4"
-              alt="Post ID Example"
-            />
+
           </div>
           {/* Step 2 */}
           <div className="step mt-6">
