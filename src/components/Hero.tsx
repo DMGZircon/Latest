@@ -71,18 +71,19 @@ export const Hero: React.FC<IHero> = ({ setIsLoading }) => {
         const result: AnalysisResult = {
             postId,
             date: new Date().toISOString(),
-            overallScore: overallAnalysis?.overallScore || 0,
+            overallScore: parseFloat((overallAnalysis?.overallScore ?? 0).toFixed(5)),
             overallSentiment: overallAnalysis?.overallSentiment || 'Neutral',
             topPositiveWords: overallAnalysis?.topPositiveWords || [],
             topNegativeWords: overallAnalysis?.topNegativeWords || [],
             scoreMagnitude: overallAnalysis?.scoreMagnitude || 0
         };
-    
-        console.log(analyzed);
+        console.log('Payload being sent:', result);
+        console.log("Analyzed", analyzed);
     
         try {
             // Replace the URL with your Hostinger URL pointing to save_analysis.php
-            const response = await axios.post('https://beige-ant-849030.hostingersite.com/save_analysis.php', result, {
+            console.log('Overall Score (before sending):', parseFloat((overallAnalysis?.overallScore ?? 0).toFixed(5)));
+            const response = await axios.post('https://sentitracker.com/save_analysis.php', result, {
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -118,13 +119,23 @@ export const Hero: React.FC<IHero> = ({ setIsLoading }) => {
                 const analyzed = result.map((commentObj: { message: string }) => {
                     const normalizedMessage = commentObj.message.toLowerCase();
                     const analysis = sentiment.analyze(normalizedMessage, { language: 'custom' });
+
+                    // Count the number of words in the comment
+                const noOfWords = normalizedMessage.split(/\s+/).filter((word) => word.trim() !== '').length;
+
+                // Modify the score to fit the range -1 to 1 and normalize it by the number of words
+                const adjustedScore = noOfWords > 0 
+                    ? Math.max(-1, Math.min(1, analysis.score)) / noOfWords 
+                    : 0; // Prevent division by zero
+                
+                const roundedScore = parseFloat(adjustedScore.toFixed(5));
                     return {
                         comment: commentObj.message,
-                        score: analysis.score,
+                        score: roundedScore,
                         comparative: analysis.comparative,
                         positive: analysis.positive,
                         negative: analysis.negative,
-                        sentiment: analysis.score > 0 ? 'Positive' : analysis.score < 0 ? 'Negative' : 'Neutral',
+                        sentiment: analysis.score > 0.25 ? 'Positive' : analysis.score < -0.25 ? 'Negative' : 'Neutral',
                     };
                 });
 
@@ -141,15 +152,19 @@ export const Hero: React.FC<IHero> = ({ setIsLoading }) => {
         }
     };
 
-    const analyzeOverallResults = (analyzed: any[]) => {
+    const analyzeOverallResults = (result: any[]) => {
         const positiveWordFreq: Record<string, number> = {};
         const negativeWordFreq: Record<string, number> = {};
-        let overallScore = 0;
-        let scoreMagnitude = 0;
-
-        analyzed.forEach((comment) => {
-            overallScore += comment.score;
-            scoreMagnitude += Math.abs(comment.score);
+        let totalAdjustedScore = 0;
+        let totalComments = result.length;
+    
+        result.forEach((comment) => {
+            const adjustedScore = comment.score;  // Already normalized adjusted score from the map
+    
+            // Add the adjusted score to the total score
+            totalAdjustedScore += adjustedScore;
+    
+            // Count word frequencies for positive and negative words
             comment.positive.forEach((word: string) => {
                 positiveWordFreq[word] = (positiveWordFreq[word] || 0) + 1;
             });
@@ -157,29 +172,55 @@ export const Hero: React.FC<IHero> = ({ setIsLoading }) => {
                 negativeWordFreq[word] = (negativeWordFreq[word] || 0) + 1;
             });
         });
-
+    
+        // Calculate the overall adjusted score (average of all comments)
+        const overallAdjustedScore = totalComments > 0 ? totalAdjustedScore / totalComments : 0;
+        
+        // Round the overall score to 5 decimal places
+        const roundedOverallScore = parseFloat(overallAdjustedScore.toFixed(5));
+    
+        // Determine the overall sentiment based on the adjusted score
+        let overallSentiment = 'Neutral';
+        if (overallAdjustedScore > 0) {
+            overallSentiment = 'Positive';
+        } else if (overallAdjustedScore < 0) {
+            overallSentiment = 'Negative';
+        }
+    
+        // Get top positive and negative words
         const topPositiveWords = Object.entries(positiveWordFreq)
             .sort((a, b) => b[1] - a[1])
             .slice(0, 10)
             .map(([word]) => word);
-
+    
         const topNegativeWords = Object.entries(negativeWordFreq)
             .sort((a, b) => b[1] - a[1])
             .slice(0, 10)
             .map(([word]) => word);
-
-        const overallSentiment = overallScore > 0 ? 'Positive' : overallScore < 0 ? 'Negative' : 'Neutral';
-        const coreSentences = analyzed.sort((a, b) => Math.abs(b.score) - Math.abs(a.score)).slice(0, 3);
+    
+        // Calculate the score magnitude
+        let scoreMagnitude = 0;
+        result.forEach((comment) => {
+            scoreMagnitude += Math.abs(comment.score);
+        });
+    
+        // Get the core sentences (top 3 by absolute score)
+        const coreSentences = result
+            .sort((a, b) => Math.abs(b.score) - Math.abs(a.score))
+            .slice(0, 3);
+    
+        // Calculate score range
         const scoreRange = {
-            min: Math.min(...analyzed.map(c => c.score)),
-            max: Math.max(...analyzed.map(c => c.score)),
+            min: Math.min(...result.map(c => c.score)),
+            max: Math.max(...result.map(c => c.score)),
         };
-
+    
+        // Update the overall analysis state
         setOverallAnalysis({
             topPositiveWords,
             topNegativeWords,
             overallSentiment,
-            overallScore,
+            overallScore: roundedOverallScore, // Use the rounded score as the overall score
             scoreMagnitude,
             coreSentences,
             scoreRange,
