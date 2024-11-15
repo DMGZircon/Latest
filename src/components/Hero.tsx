@@ -43,9 +43,24 @@ export const Hero: React.FC<IHero> = ({ setIsLoading }) => {
 
     const pageID = '432818713243101';
     const accessToken = 'EAAZASei56b9cBO02glJ1FNT3z5yfRtvgIJ8iF2jne1Xupuo2aKWPT3nrF7vllDt7EdZBPyYowRTZC66Y632z4ZAmGhynKZCsrl29kw1pCZATTRJtVvuOJr7OEZBaGBeKcYKZBH4rvazcY0SA7GlnWYgiGgEjfA0bapXo1CRHdcGdfY9KcCIDzt5SGFZAmb9tXdZBnWO424jw8Y'; // Replace with your actual token
+    const [showPaginationControls, setShowPaginationControls] = useState(false);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const commentsPerPage = 5;
+    const commentsPerPage = 10; // Display 10 comments per page
+
+    const totalPages = Math.ceil(analyzedComments.length / commentsPerPage);
+
+        // Calculate the comments for the current page
+    const indexOfLastComment = currentPage * commentsPerPage;
+    const indexOfFirstComment = indexOfLastComment - commentsPerPage;
+    const currentComments = analyzedComments.slice(indexOfFirstComment, indexOfLastComment);
+
+    // Function to handle navigation
+    const handlePageChange = (page: number) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
+    };
 
     useEffect(() => {
         if (overallAnalysis) {
@@ -115,6 +130,7 @@ export const Hero: React.FC<IHero> = ({ setIsLoading }) => {
 
                 setAnalyzedComments(analyzed);
                 analyzeOverallResults(analyzed);
+                setShowPaginationControls(true);
                 setIsLoading(false);
             } catch (error) {
                 console.error(error);
@@ -169,14 +185,6 @@ export const Hero: React.FC<IHero> = ({ setIsLoading }) => {
             scoreRange,
         });
     };
-
-
-    const indexOfLastComment = currentPage * commentsPerPage;
-    const indexOfFirstComment = indexOfLastComment - commentsPerPage;
-    const currentComments = analyzedComments.slice(indexOfFirstComment, indexOfLastComment);
-
-    const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-
 
     return (
         <div className="hero flex flex-col sm:flex-row justify-center items-center py-12 bg-gray-100 text-gray-800" id='home'>
@@ -249,20 +257,58 @@ export const Hero: React.FC<IHero> = ({ setIsLoading }) => {
                         </Table>
                     </TableContainer>
                 )}
-                <div className="flex justify-center mt-4">
-                    {Array.from({ length: Math.ceil(analyzedComments.length / commentsPerPage) }, (_, index) => (
+                    {/* Pagination Controls */}
+                    {showPaginationControls && (
+                    <div className="flex justify-center mt-4 gap-2 items-center">
                         <Button
-                            key={index + 1}
                             variant="outlined"
-                            color="primary"
-                            onClick={() => paginate(index + 1)}
-                            className={`mx-1 ${currentPage === index + 1 ? 'bg-gray-700 text-white' : 'text-gray-800'}`}
+                            onClick={() => handlePageChange(1)}
+                            disabled={currentPage === 1}
                         >
-                            {index + 1}
+                            First Page
                         </Button>
-                    ))}
-                </div>
-            </div>
+                        <Button
+                            variant="outlined"
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                        >
+                            Previous
+                        </Button>
+                        <TextField
+                            type="number"
+                            value={currentPage}
+                            onChange={(e) => {
+                                const value = parseInt(e.target.value, 10);
+                                if (value >= 1 && value <= totalPages) {
+                                    setCurrentPage(value);
+                                }
+                            }}
+                            inputProps={{ min: 1, max: totalPages, style: { textAlign: "center" } }}
+                            style={{ width: "60px" }}
+                        />
+                        <Button
+                            variant="outlined"
+                            onClick={() => handlePageChange(currentPage)}
+                        >
+                            Go to
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                        >
+                            Next
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            onClick={() => handlePageChange(totalPages)}
+                            disabled={currentPage === totalPages}
+                        >
+                            Last Page
+                        </Button>
+                    </div>
+                                        )}
+                    </div>
 
             <div className="section2 sm:w-1/2 w-full flex flex-col gap-4 px-6">
          {overallAnalysis && (

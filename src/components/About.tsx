@@ -27,7 +27,7 @@ export const HowToUse = () => {
               <img src="/get-date.jpg" // Replace with the image showing where the Post ID is in the Facebook URL
               className="w-[35rem] h-[20rem] object-contain rounded-3xl mt-4"
               alt="Post ID Example"/>
-              <li>Press "Right-Click to View Page Source(or in Chroms, its Ctrl+U)</li>
+              <li>Press "Right-Click to View Page Source(or in Chrome, press Ctrl+U)</li>
               <li>Press "Ctrl+F" to search for "post_id"</li>
               <li>The Post ID is a long string of numbers (ex. "post_id=123456789..."). Copy this number.</li>
             </ul>
