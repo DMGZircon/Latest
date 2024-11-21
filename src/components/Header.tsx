@@ -29,7 +29,7 @@ export const Header = () => {
                             <Link to="/" onClick={toggleNav}> HOME</Link>
                         </li>
                         <li className="cursor-pointer hover:-translate-y-1 font-medium text-2xl">
-                            <Link to="/#about" onClick={toggleNav}> ABOUT</Link>
+                            <Link to="/#how-to-use" onClick={toggleNav}> HOW TO USE</Link>
                         </li>
                         <li className="cursor-pointer hover:-translate-y-1 font-medium text-2xl">
                             <Link to="/admin-login" onClick={toggleNav}> ADMIN LOGIN</Link> {/* Updated */}
@@ -38,14 +38,17 @@ export const Header = () => {
                 </div>
             </div>
             <header className="flex justify-around items-center h-20 w-full shadow-md fixed top-0 bg-white z-10">
-                <h1 className="text-lg font-bold">Sentiment</h1>
+            <div className="flex items-center">
+                <img src="sentiment.png" alt="SentiTrack Logo" className="h-10 mr-2" />
+                <h1 className="text-lg font-bold">SentiTracker</h1>
+                </div>
                 <ul className="sm:flex items-center gap-4 hidden">
                     <li className="cursor-pointer hover:-translate-y-1 font-medium">
                         <Link to="/"> HOME</Link>
                     </li>
                     <div className="inline-block h-7 w-[1px] bg-[#1b1b1b]"></div>
                     <li className="cursor-pointer hover:-translate-y-1 font-medium">
-                        <Link to="/#about"> ABOUT</Link>
+                        <Link to="/#how-to-use"> HOW TO USE</Link>
                     </li>
                     <div className="inline-block h-7 w-[1px] bg-[#1b1b1b]"></div>
                     <li className="cursor-pointer hover:-translate-y-1 font-medium">
